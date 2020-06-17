@@ -7,7 +7,7 @@ package com.example.mymmal.config.error;
 
 import io.swagger.annotations.Api;
 
-@Api(tags = "错误信息枚举")
+
 public enum EmBusinessError implements CommonError {
     //定义错误类型
     PARAMETER_VALIDATION_ERROR(000001, "参数不合法"),

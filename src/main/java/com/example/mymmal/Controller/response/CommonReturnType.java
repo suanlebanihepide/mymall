@@ -6,17 +6,20 @@
 package com.example.mymmal.Controller.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-@JsonSerialize(include =  JsonSerialize.Inclusion.NON_NULL)
-public class CommonReturnType implements Serializable {
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+public class CommonReturnType<T> implements Serializable {
 
 
     //固定返回信息
+    @ApiModelProperty(value = "状态", name = "status")
     private String status;
+    @ApiModelProperty(value = "返回的数据", name = "data")
     private Object data;
 
     public CommonReturnType() {
@@ -29,12 +32,12 @@ public class CommonReturnType implements Serializable {
     }
 
     //定义通用创建方法
-    public static CommonReturnType create(Object result) {
+    public static <T> CommonReturnType<T> create(T result) {
 
         return new CommonReturnType("success", result);
     }
 
-    public static CommonReturnType create(Object result, String status) {
+    public static <T> CommonReturnType<T> create(T result, String status) {
         CommonReturnType type = new CommonReturnType();
         type.setData(result);
         type.setStatus(status);

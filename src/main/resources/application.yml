@@ -12,15 +12,23 @@ spring:
         max-active: 50
     password: 13892009451
 
+#pagehelper\u914D\u7F6E
+
 
 sharding:
   jdbc:
     datasource:
-      names: ds1
+      names: ds1,ds2
       ds1:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.jdbc.Driver
         url: jdbc:mysql://localhost:3306/mymmal_protal_user
+        username: root
+        password: 123456
+      ds2:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/mymmal_protal_product
         username: root
         password: 123456
     config:
@@ -38,4 +46,37 @@ sharding:
               inline:
                 shardingColumn: id
                 algorithm-expression: user_password
+          category:
+            actual-data-nodes: ds2.category  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: category
+          item:
+            actual-data-nodes: ds2.item_${1..2}  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: item_${id % 2 + 1}
+          item_stock:
+            actual-data-nodes: ds2.item_stock  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: item_stock
+          cart:
+            actual-data-nodes: ds1.cart  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: cart
+          shipping:
+            actual-data-nodes: ds1.shipping  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: shipping
 
+
+      props:
+        sql.show: true

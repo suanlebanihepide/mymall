@@ -13,6 +13,8 @@ import com.example.mymmal.Service.model.UserModel;
 import com.example.mymmal.config.error.BusinessException;
 import com.example.mymmal.config.error.EmBusinessError;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.java.Log;
 import org.springframework.beans.BeanUtils;
@@ -41,6 +43,10 @@ public class UserManageController {
     @ApiOperation(value = "后台用户登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "telphone", value = "用户手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "用户密码", required = true, dataType = "String")})
+
     public CommonReturnType login(@RequestParam(name = "telphone") String telphone, @RequestParam(name = "password") String password, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
 
         if (StringUtils.isEmpty(telphone) || StringUtils.isEmpty(password)) {

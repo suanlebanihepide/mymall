@@ -13,6 +13,8 @@ import com.example.mymmal.Service.model.UserModel;
 import com.example.mymmal.config.error.BusinessException;
 import com.example.mymmal.config.error.EmBusinessError;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.java.Log;
 import org.springframework.beans.BeanUtils;
@@ -44,6 +46,9 @@ public class UserController {
     @ApiOperation(value = "前台用户登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "telphone", value = "用户手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "用户密码", required = true, dataType = "String")})
     public CommonReturnType login(@RequestParam(name = "telphone") String telphone, @RequestParam(name = "password") String password, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
 
         if (StringUtils.isEmpty(telphone) || StringUtils.isEmpty(password)) {
@@ -55,7 +60,6 @@ public class UserController {
         request.getSession().setAttribute("LOGIN_USER", userVo);
         return CommonReturnType.create(userVo);
     }
-
 
 
     @ApiOperation(value = "前台获取当前用户信息")
@@ -98,6 +102,14 @@ public class UserController {
     @ApiOperation(value = "用户注册接口")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "telphone", value = "用户手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "otpCode", value = "手机验证码", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "用户名", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "用户密码", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "gender", value = "性别", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "age", value = "年龄", required = true, dataType = "String")})
+
     public CommonReturnType register(@RequestParam(name = "telphone") String telphone,
                                      @RequestParam(name = "otpCode") String otpCode,
                                      @RequestParam(name = "name") String name,

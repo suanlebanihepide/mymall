@@ -21,15 +21,15 @@ import java.util.Map;
 @Log
 public class ExceptionResolve {
 
-    @ExceptionHandler(value = Exception.class)
-    @ResponseBody
-    public CommonReturnType resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
-
-        log.info("{" + httpServletRequest.getRequestURI() + "} Exception" + e);
-        Map<String, String> map = new HashMap<>();
-        map.put("status", "false");
-        map.put("msg", "详情查看服务端接口信息");
-        map.put("data", e.toString());
-        return CommonReturnType.create(map, "false");
-    }
+//    @ExceptionHandler(value = Exception.class)
+//    @ResponseBody
+//    public CommonReturnType resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
+//
+//        log.info("{" + httpServletRequest.getRequestURI() + "} Exception" + e);
+//        Map<String, String> map = new HashMap<>();
+//        map.put("status", "false");
+//        map.put("msg", "详情查看服务端接口信息");
+//        map.put("data", e.toString());
+//        return CommonReturnType.create(map, "false");
+//    }
 }
