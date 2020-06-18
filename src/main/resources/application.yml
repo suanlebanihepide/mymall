@@ -7,13 +7,7 @@ spring:
     host: 39.106.127.76
     port: 6379
     database: 0
-    jedis:
-      pool:
-        max-active: 50
     password: 13892009451
-
-#pagehelper\u914D\u7F6E
-
 
 sharding:
   jdbc:
@@ -76,6 +70,25 @@ sharding:
               inline:
                 shardingColumn: id
                 algorithm-expression: shipping
+          order_info:
+            actual-data-nodes: ds1.order_info  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: order_info
+          sequence_info:
+            actual-data-nodes: ds1.sequence_info  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: sequence_info
+          promo:
+            actual-data-nodes: ds1.promo  #\u6570\u636E\u8282\u70B9
+            table-strategy:  #\u5206\u8868\u7B56\u7565
+              inline:
+                shardingColumn: id
+                algorithm-expression: promo
+
 
 
       props:

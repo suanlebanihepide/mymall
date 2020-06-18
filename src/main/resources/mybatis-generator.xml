@@ -6,7 +6,8 @@
 
     <context id="DB2Tables" targetRuntime="MyBatis3">
         <!--数据库链接地址账号密码-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/mymmal_protal_user"
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/mymmal_protal_user"
                         userId="root" password="123456">
         </jdbcConnection>
         <!--生成DataObject类存放位置-->
@@ -32,35 +33,45 @@
         <!--生成对应表及类名-->
 
 
-<!--        <table tableName="user_info" domainObjectName="UserDO" enableCountByExample="false"-->
-<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-<!--        <table tableName="user_password" domainObjectName="UserPasswordDO" enableCountByExample="false"-->
-<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-<!--        &lt;!&ndash;       &ndash;&gt;-->
-<!--                <table tableName="item" domainObjectName="ItemDO" enableCountByExample="false"-->
-<!--                       enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--                       enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-<!--                <table tableName="item_stock" domainObjectName="ItemStockDO" enableCountByExample="false"-->
-<!--                       enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--                       enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-<!--        -->
-<!--        <table tableName="cart" domainObjectName="CartDO" enableCountByExample="false"-->
-<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-        <table tableName="shipping" domainObjectName="ShippingDO" enableCountByExample="false"
-               enableUpdateByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" selectByExampleQueryId="false"></table>
-
-<!--                        <table tableName="category" domainObjectName="CategoryDO" enableCountByExample="false"-->
-<!--                               enableUpdateByExample="false" enableDeleteByExample="false"-->
-<!--                               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
-
-
-        <!--        <table tableName="sequence_info" domainObjectName="SequenceDO" enableCountByExample="false"-->
+        <!--        <table tableName="user_info" domainObjectName="UserDO" enableCountByExample="false"-->
         <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
         <!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <!--        <table tableName="user_password" domainObjectName="UserPasswordDO" enableCountByExample="false"-->
+        <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <!--        &lt;!&ndash;       &ndash;&gt;-->
+        <!--                <table tableName="item" domainObjectName="ItemDO" enableCountByExample="false"-->
+        <!--                       enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--                       enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <!--                <table tableName="item_stock" domainObjectName="ItemStockDO" enableCountByExample="false"-->
+        <!--                       enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--                       enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <!--        -->
+        <!--        <table tableName="cart" domainObjectName="CartDO" enableCountByExample="false"-->
+        <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+        <!--        <table tableName="shipping" domainObjectName="ShippingDO" enableCountByExample="false"-->
+        <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+
+        <!--                        <table tableName="category" domainObjectName="CategoryDO" enableCountByExample="false"-->
+        <!--                               enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--                               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+
+
+        <!--        <table tableName="order_info" domainObjectName="OrderInfoDO" enableCountByExample="false"-->
+        <!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+        <!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
+
+
+                <table tableName="sequence_info" domainObjectName="SequenceDO" enableCountByExample="false"
+                               enableUpdateByExample="false" enableDeleteByExample="false"
+                               enableSelectByExample="false" selectByExampleQueryId="false"></table>
+
+
+<!--        <table tableName="promo" domainObjectName="PromoDO" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false" enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false" selectByExampleQueryId="false"></table>-->
 
 
         <!--                <table tableName="stock_log"  domainObjectName="StockLogDO" enableCountByExample="false"-->

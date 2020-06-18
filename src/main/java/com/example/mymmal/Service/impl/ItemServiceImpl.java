@@ -6,7 +6,9 @@
 package com.example.mymmal.Service.impl;
 
 import com.example.mymmal.Service.ItemService;
+import com.example.mymmal.Service.PromoService;
 import com.example.mymmal.Service.model.ItemModel;
+import com.example.mymmal.Service.model.PromoModel;
 import com.example.mymmal.dao.CategoryDOMapper;
 import com.example.mymmal.dao.ItemDOMapper;
 import com.example.mymmal.dao.ItemStockDOMapper;
@@ -14,6 +16,8 @@ import com.example.mymmal.dao.ItemStockDOMapper;
 import com.example.mymmal.dataobject.ItemDO;
 import com.example.mymmal.dataobject.ItemStockDO;
 
+import com.example.mymmal.dataobject.PromoDO;
+import com.example.mymmal.mq.MqProducer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,6 +42,10 @@ public class ItemServiceImpl implements ItemService {
     private CategoryDOMapper categoryDOMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private PromoService promoService;
+    @Autowired
+    private MqProducer producer;
 
     @Override
     public List<ItemModel> getProductList(int pageNum, int pageSize) {
@@ -55,8 +64,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemModel getProductDetails(Integer id) {
-
-
         ItemModel itemModel = null;
         itemModel = (ItemModel) redisTemplate.opsForValue().get("item_model_" + id);
         if (itemModel == null) {
@@ -64,9 +71,12 @@ public class ItemServiceImpl implements ItemService {
             if (itemDO == null) return null;
             ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
             itemModel = convertModelFromDataObject(itemDO, itemStockDO);
+            //添加活动模块
+            PromoModel list = promoService.getPromoByItemId(id);
+            itemModel.setPromoModel(list);
             redisTemplate.opsForValue().set("item_model_" + id, itemModel);
             redisTemplate.expire("item_model_" + id, 10, TimeUnit.MINUTES);
-            //添加活动模块
+
         }
         return itemModel;
     }
@@ -110,6 +120,66 @@ public class ItemServiceImpl implements ItemService {
         redisTemplate.opsForValue().set("item_model_" + itemModel.getId(), update_itemModel_after);
         redisTemplate.expire("item_model_" + itemModel.getId(), 10, TimeUnit.MINUTES);
         return update_itemModel_after;
+    }
+
+
+    @Override
+    public ItemModel getItemModelById(Integer itemId) {
+        ItemDO itemDO = itemDOMapper.selectByPrimaryKey(itemId);
+        if (itemDO == null) {
+            return null;
+        }
+        ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
+
+        ItemModel itemModel = convertModelFromDataObject(itemDO, itemStockDO);
+        //将dataobject->model
+
+        return itemModel;
+    }
+
+    @Override
+    public boolean decreaseStock(Integer itemId, Integer amount) {
+        //返回剩下的库存数字
+        Long result = redisTemplate.opsForValue().increment("promo_item_stock" + itemId, -1 * amount);
+
+        if (result < 0) {
+            increaseStock(itemId, amount);
+
+            return false;
+        } else if (result == 0) {
+            redisTemplate.opsForValue().set("promo_item_stock_validate" + itemId, "true");
+
+        }
+        return true;
+    }
+
+    @Override
+    public boolean increaseStock(Integer itemId, Integer amount) {
+        redisTemplate.opsForValue().increment("promo_item_stock" + itemId, amount);
+        return true;
+    }
+
+    @Override
+    public boolean asyncDecreaseStock(Integer itemId, Integer amount) {
+        Boolean msgResult = producer.asyncReduceStock(itemId, amount);
+        return msgResult;
+    }
+
+    @Override
+    public String initStackLog(Integer itemId, Integer amount) {
+//        StockLogDO stockLogDO = new StockLogDO();
+//        stockLogDO.setItemId(itemId);
+//        stockLogDO.setAmount(amount);
+//        stockLogDO.setStockLogId(UUID.randomUUID().toString().replaceAll("-", ""));
+//        stockLogDO.setStatus(1);
+//        stockLogDOMapper.insert(stockLogDO);
+//        return stockLogDO.getStockLogId();
+        return "";
+    }
+
+    @Override
+    public void increaseSales(Integer itemId, Integer amount) {
+        itemDOMapper.increaseSales(itemId, amount);
     }
 
 

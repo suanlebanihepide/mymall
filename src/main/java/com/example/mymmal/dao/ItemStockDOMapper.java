@@ -1,6 +1,7 @@
 package com.example.mymmal.dao;
 
 import com.example.mymmal.dataobject.ItemStockDO;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,4 +55,6 @@ public interface ItemStockDOMapper {
     int updateByPrimaryKey(ItemStockDO record);
 
     ItemStockDO selectByItemId(Integer item_id);
+
+    int  decreaseStock(@Param("itemId") Integer itemId, @Param("amount")  Integer amount);
 }

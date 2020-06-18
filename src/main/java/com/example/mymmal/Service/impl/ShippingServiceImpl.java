@@ -3,8 +3,9 @@
  * @Date: 2020/6/17 2:37
  */
 
-package com.example.mymmal.Service;
+package com.example.mymmal.Service.impl;
 
+import com.example.mymmal.Service.ShippingService;
 import com.example.mymmal.dao.ShippingDOMapper;
 import com.example.mymmal.dataobject.ShippingDO;
 import org.omg.CORBA.PRIVATE_MEMBER;
