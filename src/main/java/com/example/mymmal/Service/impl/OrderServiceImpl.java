@@ -11,12 +11,8 @@ import com.example.mymmal.Service.UserService;
 import com.example.mymmal.Service.model.ItemModel;
 import com.example.mymmal.Service.model.OrderItemModel;
 import com.example.mymmal.Service.model.OrderModel;
-import com.example.mymmal.dao.ItemDOMapper;
-import com.example.mymmal.dao.OrderInfoDOMapper;
-import com.example.mymmal.dao.SequenceDOMapper;
-import com.example.mymmal.dataobject.ItemDO;
-import com.example.mymmal.dataobject.OrderInfoDO;
-import com.example.mymmal.dataobject.SequenceDO;
+import com.example.mymmal.dao.*;
+import com.example.mymmal.dataobject.*;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
@@ -31,8 +27,10 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -48,10 +46,62 @@ public class OrderServiceImpl implements OrderService {
     private SequenceDOMapper sequenceDOMapper;
     @Autowired
     private ItemDOMapper itemDOMapper;
+    @Autowired
+    private CartDOMapper cartDOMapper;
+    @Autowired
+    private ShippingDOMapper shippingDOMapper;
 
     @Override
     public OrderModel createOrder(Integer userId, Integer shippingId) {
-        return null;
+
+
+        List<CartDO> list = cartDOMapper.selectCartByUserId(userId);
+
+        OrderModel result = new OrderModel();
+        result.setTotal(new BigDecimal(0));
+        result.setOrderProductList(new ArrayList<>());
+        for (CartDO cartDO : list) {
+
+            ItemModel itemModel = itemService.getProductDetails(cartDO.getProductId());
+            if (itemModel == null) continue;
+            //减库存
+            boolean mqResult = itemService.asyncDecreaseStock(itemModel.getId(), cartDO.getQuantity());
+            //3.订单入库
+            OrderItemModel orderModel = new OrderItemModel();
+            orderModel.setUserId(userId);
+            orderModel.setItemId(cartDO.getProductId());
+            orderModel.setAmount(cartDO.getQuantity());
+            orderModel.setItemPrice(itemModel.getPrice());
+            orderModel.setOrderAmount(orderModel.getItemPrice().multiply(new BigDecimal(cartDO.getQuantity())));
+            orderModel.setId(generateOrderNo());
+            orderModel.setStatus(10);
+
+            result.getOrderProductList().add(orderModel);
+            BigDecimal tmp = result.getTotal();
+            result.setTotal(tmp.add(orderModel.getOrderAmount()));
+
+
+            OrderInfoDO orderDO = covertFromOrderModel(orderModel);
+            orderDO.setShippingId(shippingId);
+            orderDO.setCreateTime(new Date());
+            orderDO.setUpdateTime(orderDO.getCreateTime());
+            orderDO.setCloseTime(new Date());
+            orderDO.setEndTime(new Date());
+            orderDO.setEndTime(new Date());
+            orderDO.setPaymentTime(new Date());
+            orderDO.setSendTime(new Date());
+            orderDO.setPromoId(-1);
+            //生成交易流水号
+            orderInfoDOMapper.insert(orderDO);
+            //加上商品销量
+            itemService.increaseSales(cartDO.getProductId(), cartDO.getQuantity());
+        }
+
+        result.setStatus(10);
+        result.setSend_time(new Date().toString());
+        result.setShippingDO(shippingDOMapper.selectByPrimaryKey(shippingId));
+
+        return result;
     }
 
     @Override
@@ -117,6 +167,56 @@ public class OrderServiceImpl implements OrderService {
         });
         return orderModel;
     }
+
+
+    @Override
+    public List<OrderInfoDO> getOrderList(Integer userId, int pageNum, int pageSize) {
+        int start = (pageNum - 1) * pageSize;
+        List<OrderInfoDO> list = orderInfoDOMapper.listItemByUserId(userId, start, pageSize);
+        if (list == null) return null;
+        List<OrderInfoDO> list2 = list.subList(list.size() - pageSize, list.size());
+        return list2;
+    }
+
+    @Override
+    public OrderInfoDO getOrderDetails(Integer userId, String orderNo) {
+
+        OrderInfoDO orderInfoDO = orderInfoDOMapper.selectByPrimaryKey(orderNo);
+
+        return orderInfoDO;
+    }
+
+    @Override
+    public Boolean cancel(Integer userId, String orderNo) {
+        Boolean res = orderInfoDOMapper.updateStatusByOrderNo(userId, orderNo);
+        return res;
+    }
+
+    @Override
+    public List<OrderInfoDO> manageList(int pageNum, int pageSize) {
+        int start = (pageNum - 1) * pageSize;
+        List<OrderInfoDO> list = orderInfoDOMapper.listItem(start, pageSize);
+        if (list == null) return null;
+        List<OrderInfoDO> list2 = list.subList(list.size() - pageSize, list.size());
+        return list2;
+    }
+
+    @Override
+    public OrderInfoDO manageDetail(String orderNo) {
+
+        return orderInfoDOMapper.selectByPrimaryKey(orderNo);
+    }
+
+    @Override
+    public OrderInfoDO manageSendGoods(String orderNo) {
+        OrderInfoDO orderInfoDO = orderInfoDOMapper.selectByPrimaryKey(orderNo);
+        orderInfoDO.setSendTime(new Date());
+
+        int res = orderInfoDOMapper.updateByPrimaryKeySelective(orderInfoDO);
+        if (res < 0) return null;
+        return orderInfoDO;
+    }
+
 
     @Override
     public void closeOrder(int hour) {

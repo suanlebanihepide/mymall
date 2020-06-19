@@ -4,6 +4,7 @@ import com.example.mymmal.dataobject.OrderInfoDO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -58,9 +59,15 @@ public interface OrderInfoDOMapper {
 
     //定时关单
 
-    List<OrderInfoDO> selectOrderStatusByCreateTime(@Param("status")Integer status , @Param("date") String date);
+    List<OrderInfoDO> selectOrderStatusByCreateTime(@Param("status") Integer status, @Param("date") String date);
 
     //关单
     int closeOrderByOrderId(String id);
 
+    List<OrderInfoDO> listItem(int start, int pageSize);
+
+    Boolean updateStatusByOrderNo(@Param("userId") Integer userId, @Param("id") String orderNo);
+
+
+    List<OrderInfoDO> listItemByUserId(@Param("userId") Integer userId, @Param("start") int start, @Param("pageSize") int pageSize);
 }

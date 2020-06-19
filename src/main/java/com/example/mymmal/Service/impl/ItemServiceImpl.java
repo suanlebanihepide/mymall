@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -51,6 +52,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemModel> getProductList(int pageNum, int pageSize) {
         int start = (pageNum - 1) * pageSize;
         List<ItemDO> list = itemDOMapper.listItem(start, pageSize);
+
         List<ItemDO> list2 = list.subList(list.size() - pageSize, list.size());
         List<ItemModel> itemModels = list2.stream().map(itemDO -> {
             ItemStockDO itemStockDO = itemStockDOMapper.selectByItemId(itemDO.getId());
@@ -138,6 +140,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public boolean decreaseStock(Integer itemId, Integer amount) {
         //返回剩下的库存数字
         Long result = redisTemplate.opsForValue().increment("promo_item_stock" + itemId, -1 * amount);

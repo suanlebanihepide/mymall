@@ -41,7 +41,7 @@
         select
         <include refid="Base_Column_List"/>
         from order_info
-        where id = #{id,jdbcType=VARCHAR}
+        where id like #{id,jdbcType=VARCHAR}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
         <!--
@@ -262,6 +262,32 @@
     SET status = 0
     where id like #{id}
   </update>
+
+    <select id="listItem" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from order_info
+        order by sales DESC
+        limit #{start}, #{pageSize}
+    </select>
+
+    <update id="updateStatusByOrderNo" parameterType="java.lang.String">
+    UPDATE order_info
+    SET status = 0
+    where id like #{id}
+    and
+    userId = #{userId}
+  </update>
+    <select id="listItemByUserId" resultMap="BaseResultMap">
+
+        select
+        <include refid="Base_Column_List"/>
+        from order_info
+        where user_id = #{userId}
+        limit #{start}, #{pageSize}
+    </select>
+
 
 
 </mapper>

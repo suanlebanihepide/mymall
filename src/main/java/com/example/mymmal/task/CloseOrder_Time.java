@@ -5,6 +5,7 @@
 
 package com.example.mymmal.task;
 
+import com.example.mymmal.Service.OrderService;
 import com.example.mymmal.config.RedissonManager;
 import jodd.util.PropertiesUtil;
 import lombok.extern.java.Log;
@@ -26,23 +27,25 @@ public class CloseOrder_Time {
     private RedissonManager redissonManager;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private OrderService orderService;
 
     @PreDestroy
     public void delLock() {
         redisTemplate.delete("REDIS_BLOCK.CLOSE_ORDER_TASK_LOCK");
     }
-
-//    @Scheduled(cron = "*/10 * * * * ?")
+//
+//    @Scheduled(cron = "* */10 * * * ?")
     public void cloesOrderTask() {
 
         RLock lock = redissonManager.getRedisson().getLock("REDIS_BLOCK.CLOSE_ORDER_TASK_LOCK");
         boolean getLock = false;
         try {
-            if (getLock = lock.tryLock(0, 50, TimeUnit.SECONDS)) {
+            if (getLock = lock.tryLock(0, 20, TimeUnit.SECONDS)) {
 
                 log.info("Redisson获取分布式的锁 name{} ThreadName{}");
 //                int hour = Integer.parseInt(PropertiesUtil.getProperty("close.order.task.time.hour"));
-////                iOrderService.closeOrder(hour);
+                orderService.closeOrder(1);
             } else {
                 log.info("Redisson未获取分布式的锁 name{} ThreadName{}");
             }

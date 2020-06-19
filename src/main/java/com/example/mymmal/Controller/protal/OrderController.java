@@ -12,6 +12,7 @@ import com.example.mymmal.Service.ItemService;
 import com.example.mymmal.Service.OrderService;
 import com.example.mymmal.Service.PromoService;
 import com.example.mymmal.Service.model.OrderItemModel;
+import com.example.mymmal.Service.model.OrderModel;
 import com.example.mymmal.Service.model.UserModel;
 import com.example.mymmal.dataobject.OrderInfoDO;
 import com.example.mymmal.util.CodeUtil;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -55,15 +57,6 @@ public class OrderController {
 
         executorService = Executors.newFixedThreadPool(20);
         orderCreateRateLimiter = RateLimiter.create(300);
-    }
-
-    //生成验证码
-    @RequestMapping(value = "/closeOrder", method = RequestMethod.GET)
-    @ResponseBody
-    public void closeOrder(HttpServletResponse response, HttpServletRequest request) throws IOException {
-
-        orderService.closeOrder(1);
-
     }
 
 
@@ -102,15 +95,78 @@ public class OrderController {
         return CommonReturnType.create(promo_token);
     }
 
+
+    //封装下单请求
+    @RequestMapping(value = "/createOrder", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonReturnType createOrder(@RequestParam(value = "ShippingId", required = false) Integer ShippingId,
+                                        HttpServletRequest request) {
+
+        UserVo userVo = (UserVo) request.getSession().getAttribute("LOGIN_USER");
+
+        OrderModel orderModel = orderService.createOrder(userVo.getId(), ShippingId);
+        if (orderModel == null) {
+
+            return CommonReturnType.create(null, "false");
+        }
+        return CommonReturnType.create(orderModel);
+    }
+
+    //封装下单请求
+    @RequestMapping(value = "/getOrder")
+    @ResponseBody
+    public CommonReturnType getOrder(@RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+                                     @RequestParam(value = "pageSize", required = false, defaultValue = "2") Integer pageSize,
+                                     HttpServletRequest request) {
+
+        UserVo userVo = (UserVo) request.getSession().getAttribute("LOGIN_USER");
+
+        List<OrderInfoDO> list = orderService.getOrderList(userVo.getId(), pageNum, pageSize);
+        if (list == null) {
+            return CommonReturnType.create(null, "false");
+        }
+        return CommonReturnType.create(list);
+    }
+
+    //封装下单请求
+    @RequestMapping(value = "/getOrderDetails", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonReturnType getOrderDetails(@RequestParam(value = "OrderNo", required = false) String OrderNo,
+                                            HttpServletRequest request) {
+
+        UserVo userVo = (UserVo) request.getSession().getAttribute("LOGIN_USER");
+
+        OrderInfoDO res = orderService.getOrderDetails(userVo.getId(), OrderNo);
+        if (res == null) {
+            return CommonReturnType.create(null, "false");
+        }
+        return CommonReturnType.create(res);
+    }
+
+    //封装下单请求
+    @RequestMapping(value = "/cancel", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonReturnType cancel(@RequestParam(value = "OrderNo", required = false) String OrderNo,
+                                   HttpServletRequest request) {
+
+        UserVo userVo = (UserVo) request.getSession().getAttribute("LOGIN_USER");
+
+        Boolean res = orderService.cancel(userVo.getId(), OrderNo);
+        if (res == null) {
+            return CommonReturnType.create(null, "false");
+        }
+        return CommonReturnType.create(res);
+    }
+
     //封装下单请求
     @RequestMapping("/createOrderPromo")
     @ResponseBody
-    public CommonReturnType createOrder(@RequestParam("itemId") Integer itemId,
-                                        @RequestParam(value = "promoId", required = false) Integer promoId,
-                                        @RequestParam("amount") Integer amount,
-                                        @RequestParam(value = "promo_token", required = false) String promo_token,
-                                        @RequestParam(value = "ShippingId", required = false) Integer ShippingId,
-                                        HttpServletRequest request) {
+    public CommonReturnType createOrderPromo(@RequestParam("itemId") Integer itemId,
+                                             @RequestParam(value = "promoId", required = false) Integer promoId,
+                                             @RequestParam("amount") Integer amount,
+                                             @RequestParam(value = "promo_token", required = false) String promo_token,
+                                             @RequestParam(value = "ShippingId", required = false) Integer ShippingId,
+                                             HttpServletRequest request) {
 
         //令牌桶
         if (orderCreateRateLimiter.acquire() < 0) {
